@@ -109,7 +109,7 @@ app.get('/eq/latest/:number1/magnitude/:number2', function(req, res){
 
 
 var port = process.env.PORT || 8080;        // set our port
-var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development'; //getting the environment from node
+var env = process.env.NODE_ENV = process.env.NODE_ENV || 'production'; //getting the environment from node
 
 
 //connect to MongoDB
@@ -118,14 +118,15 @@ var options = { server: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000
                 replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 } } };
 
 //connect to database depending on the environment
-if (env === 'development'){
-	mongoose.connect('mongodb://localhost:27017/test');
-}
-else{
+if (env === 'production'){
 	//connection for the production environment
 	//mongoose.connect('mongodb://heroku_7fcjzxm4:i3np223uu9g4gsukb86dfmdbo5@ds031681.mlab.com:31681/heroku_7fcjzxm4'); //connect to our database
 	mongoose.connect('mongodb://bridges:bridges@ds017678.mlab.com:17678/usgs'); //connect to our database
 	//mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o'); 
+	
+}
+else{
+	mongoose.connect('mongodb://localhost:27017/test');
 }
 
 
