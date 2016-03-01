@@ -1,2 +1,2 @@
-node app.js
+web: node app.js
 //NODE_ENV=development node app.js
