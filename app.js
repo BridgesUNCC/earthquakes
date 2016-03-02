@@ -101,8 +101,7 @@ app.get('/eq/latest/:number1/magnitude/:number2', function(req, res){
 			throw err;
 		}
 		//console.log(eqk);
-		eqk = '{"Eqs":'+eqk+'}'; //client expects a field
-		res.json(eqk);
+		res.json('{"Eqs":'+eqk+'}');//client expects a field
 	}, req.params.number1, req.params.number2);
 });
 
