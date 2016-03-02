@@ -158,7 +158,7 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 var job = new CronJob({
 	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
-var str ='';
+var str ='{"Eqs":';
 request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',
 		function(error, response, body){
 			
@@ -173,8 +173,8 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 				request.connection.destroy();
 			//console.log(str);
 		
-}).on('end', function(){
-			 var newEq =  JSON.parse(str).features;
+}).on('end', function(){		
+			 var newEq =  JSON.parse((str+='}').features;
 			//console.log(newEq);
 			for (i=0; i<newEq.length; i++){
 					if (dbClient.collection('eqs').find(newEq[i]))
