@@ -166,6 +166,7 @@ var eq = module.exports = mongoose.model('eq', eqSchema);
 
 
 module.exports.getNumberEq = function(callback, limit){
+    console.log('here');
     eq.find(callback).limit(new Number(limit));
 };
 

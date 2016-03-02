@@ -64,8 +64,24 @@ app.get('/eq/latest/:number', function(req, res){
 		if(err){
 			throw err;
 		}
+		
+		res.json({"Earthquakes":eqk});
 		//console.log(eqk);
-		res.json(eqk);
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
+		/*This is great to have for the future if you want to put one model
+		as a field in another model*/
+		/*
+		console.log(eqk);
+
+		//res.json(eqk);
+	},  function(err, eqk){
+			console.log('second level');
+			mongoose.model('eqWpds').populate(eqk, {path: 'eq'}, function(err, eqk){
+				//console.log('third level:'eqk);
+				res.json({"Tweets":eqk});
+			});
+	})*/
+
 	}, req.params.number);
 });
 
@@ -77,6 +93,7 @@ app.get('/eq/latest', function(req, res){
 			throw err;
 		}
 		//console.log(eqk);
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
 		res.json(eqk);
 	});
 });
@@ -87,6 +104,8 @@ app.get('/eq/magnitude/:number', function(req, res){
 		if(err){
 			throw err;
 		}
+		
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
 		//console.log(eqk);
 		res.json(eqk);
 	}, req.params.number);
@@ -101,7 +120,7 @@ app.get('/eq/latest/:number1/magnitude/:number2', function(req, res){
 			throw err;
 		}
 		//console.log(eqk);
-		eqk = (('{"Eqs":').concat(eqk)).concat('}');
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
 		res.json(eqk);//client expects a field
 	}, req.params.number1, req.params.number2);
 });
