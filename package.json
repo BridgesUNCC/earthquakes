@@ -8,6 +8,7 @@
     "express": "^4.13.x",
     "lodash": "^4.5.x",
     "method-override": "^2.3.x",
+    "newrelic": "^1.25.5",
     "node-restful": "^0.2.x",
     "request": "^2.69.0"
   },
