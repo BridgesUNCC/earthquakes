@@ -6,6 +6,7 @@ var methodOverride = require('method-override');
 var _ = require ('lodash');
 var request = require('request');
 var CronJob = require('cron').CronJob; //updating database at certain intervals
+var PythonShell = require ('python-shell');
 /*
 var option = {
   uri: 'https://www.googleapis.com/urlshortener/v1/url',
@@ -25,7 +26,24 @@ request(option, function (error, response, body) {
 
 */
 
+/*
+Options for running the python scripts for Corgis
+*/
+/*
+var options={
+	mode: 'text',
+	pythonPath: '/usr/bin/python',  //path to python
+	pythonOptions: ['-u'],
+	scriptPath: 'corgis_scripts/', //path to scripts
+	args: ['value1', 'value2', 'value3']
 
+};
+*/
+/*
+PythonShell.run('my_script.py', options, function(err, results){
+	if (err) throw err;
+	console.log('results: %j', results); //results is an array of messages
+});*/
 
 //usgs app
 var app = express();
@@ -126,8 +144,31 @@ app.get('/eq/latest/:number1/magnitude/:number2', function(req, res){
 	}, req.params.number1, req.params.number2);
 });
 
+//get airline
+app.get('/airline/:number', function(req, res){
+	//console.log(req.params.number);
+	app.models.airline.getNumberAirlines(function(err, air){
+		if(err){
+			throw err;
+		}
+		//console.log(eqk);
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
+		res.json({"Airlines":air});
+	}, req.params.number);
+});
 
-
+//get airline
+app.get('/airlineAll', function(req, res){
+	//console.log(req.params.number);
+	app.models.airlineAll.getNumberAirlines(function(err, air){
+		if(err){
+			throw err;
+		}
+		//console.log(eqk);
+		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
+		res.json(air);
+	});
+});
 
 var port = process.env.PORT || 8080;        // set our port
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'production'; //getting the environment from node
