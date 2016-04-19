@@ -17,7 +17,7 @@ __v: {
         },
   properties: {
         mag: {
-                type: String,
+                type: Number,
                 required: true
             },
         place: {
@@ -167,7 +167,9 @@ var eq = module.exports = mongoose.model('eq', eqSchema);
 
 module.exports.getNumberEq = function(callback, limit){
     console.log('here');
-    eq.find(callback).limit(new Number(limit));
+    eq.find(callback)
+    .sort('-properties.time')
+    .limit(new Number(limit));
 };
 
 module.exports.getMinMagnitude = function(callback, limit){
@@ -182,7 +184,9 @@ module.exports.getMinMagnitude = function(callback, limit){
 
 module.exports.getMinMagNumberEq = function (callback, limitNumber, limitMag){
     console.log('Getting > magnitude > number...');
-    eq.find({"properties.mag": { $gt: new Number(limitMag) }}, callback).limit(new Number(limitNumber));
+    eq.find({"properties.mag": { $gt: limitMag }}, callback)
+    .sort('-properties.time')
+    .limit(new Number(limitNumber));
         
     //eq.close();
 };
