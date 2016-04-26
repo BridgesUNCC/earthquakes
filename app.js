@@ -264,7 +264,7 @@ job.start();
 //})));
 
 var keepAliveServ=new CronJob({
-	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 		request.get('https://earthquakes-uncc.herokuapp.com/eq/latest/1',
 			function(error, response, body){

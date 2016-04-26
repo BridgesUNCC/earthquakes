@@ -42,7 +42,7 @@ var airlineSchema   = new Schema(
                         },
             delayed: {
                         type: String
-                    },
+               },
             diverted: {
                         type: String
                         }
@@ -51,8 +51,7 @@ var airlineSchema   = new Schema(
             "late aircraft": {
                             type: String
                         },
-            security: {
-                            type: String
+            security: {                            type: String
                         },
             weather: {
                             type: String
@@ -95,7 +94,7 @@ var airlineSchema   = new Schema(
         year: {
                         type: String
                 }
-    },
+  },
     carrier: {
         code: {
                         type: String
