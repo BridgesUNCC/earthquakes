@@ -222,7 +222,7 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 *
 */
 var job = new CronJob({
-	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
 request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
