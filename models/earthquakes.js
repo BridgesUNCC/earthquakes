@@ -190,3 +190,28 @@ module.exports.getMinMagNumberEq = function (callback, limitNumber, limitMag){
         
     //eq.close();
 };
+
+module.exports.findExistingId = function (callback, currEq){
+    console.log('Search for existing earthquake by > id...' + currEq.id);
+    eq.find({"id" : currEq.id}, callback);
+
+
+     // function(err, results){
+      //  if(err) {
+     //       console.log("error while serching for id: " + id);
+     //       return false;
+     //   };
+     //   if (!results.length){
+            //console.log("Found "+ results.length + " existing results for id: " + id);
+      //      return true;
+      //    }
+      //  else
+      //      return false; 
+
+    //}
+
+    //);
+
+        
+    //eq.close();
+};

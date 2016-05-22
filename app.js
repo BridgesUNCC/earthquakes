@@ -47,8 +47,7 @@ PythonShell.run('my_script.py', options, function(err, results){
 
 //usgs app
 var app = express();
-
-
+var exists=[];
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
@@ -217,34 +216,57 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 	.pipe(parser)
 	.pipe(streamToMongo);
 */
+
+/*
+* Cronjob adding new earthquakes every hour
+*
+*/
 var job = new CronJob({
-	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
-request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',
+request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
 		function(error, response, body){
 			
 			if (!error && response.statusCode == 200){
 				//console.log(JSON.parse(body).features);
-			console.log("hello");
+			//console.log("hello");
 			};
 }).on('data',function(incommingEq){
-	str+=incommingEq
+	str+=incommingEq								//concatenating new incomming eq
 	
-	if (str.length>1e6)
+	if (str.length>1e6)								//if the string is too long the connection is interrupted
 				request.connection.destroy();
 			//console.log(str);
 		
 }).on('end', function(){
 			 var newEq =  JSON.parse(str).features;
 			//console.log(newEq);
-			for (i=0; i<newEq.length; i++){
-					if (dbClient.collection('eqs').find(newEq[i]))
-					dbClient.collection('eqs').save(newEq[i], function(err, newdata){
-						if(err) throw err;
-					console.log('New eq data added...');
-				});
-			}
+			for (i=0; i<newEq.length; i++){	
+				//console.log(app.models.eq.findExistingId(newEq[i].id));
+				//console.log(newEq[i].id);
+			    
+			    app.models.eq.findExistingId(function(err, found){
+						if(err){
+								throw err;
+						};
+						exists = found;
+						console.log(exists.length);
+						//console.log(newEq[i]);
+						
+						//res.json(eqk);
+						
+				}, newEq[i]);
+			    console.log("Found "+ exists.length);
+				if (exists.length===0){
+							dbClient.collection('eqs').save(newEq[i], function(err, newdata){
+									if(err) throw err;
+									console.log('New eq data added...');
+							});
+						}
+						else
+									console.log('No new data to add...');	
+			};
 		});
 
 	
@@ -263,8 +285,12 @@ job.start();
 //	return data;
 //})));
 
+/*
+*Cronjob keeping the server alive by sending a request every 10 minutes
+*
+*/
 var keepAliveServ=new CronJob({
-	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/10 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 		request.get('https://earthquakes-uncc.herokuapp.com/eq/latest/1',
 			function(error, response, body){
@@ -277,7 +303,7 @@ var keepAliveServ=new CronJob({
 
 	}, 
 	function(){
-		//other tasks once the curren job is stopped
+		//other tasks once the current job has stopped
 	},
 start: true, //start now 
 timeZone: ''//'America/Charlotte'
