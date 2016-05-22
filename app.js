@@ -47,7 +47,7 @@ PythonShell.run('my_script.py', options, function(err, results){
 
 //usgs app
 var app = express();
-var exists=[];
+var exists=1;
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
@@ -222,7 +222,7 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 *
 */
 var job = new CronJob({
-	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
 request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
@@ -242,32 +242,42 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 }).on('end', function(){
 			 var newEq =  JSON.parse(str).features;
 			//console.log(newEq);
-			for (i=0; i<newEq.length; i++){	
+			newEq.forEach(function(currEq){
+			//for (i=0; i<newEq.length; i++){	
 				//console.log(app.models.eq.findExistingId(newEq[i].id));
 				//console.log(newEq[i].id);
 			    
-			    app.models.eq.findExistingId(function(err, found){
+			    app.models.eq.findExistingId(currEq, function(err, found){
 						if(err){
 								throw err;
 						};
-						exists = found;
-						console.log(exists.length);
+						exists = found.length;
+						//console.log(exists);
 						//console.log(newEq[i]);
 						
 						//res.json(eqk);
-						
-				}, newEq[i]);
-			    console.log("Found "+ exists.length);
-				if (exists.length===0){
-							dbClient.collection('eqs').save(newEq[i], function(err, newdata){
+						console.log("Found "+ exists);
+						if (exists===0){
+							console.log(currEq);
+							dbClient.collection('eqs').save(currEq, function(err, newdata){
 									if(err) throw err;
-									console.log('New eq data added...');
+										console.log('New eq data added...');
 							});
+							//exists = 1;
 						}
 						else
-									console.log('No new data to add...');	
-			};
+									console.log('No new data to add...');
+				//exists = 1;
+						
+				});
+			 	
+			}, this);
 		});
+
+var callback = function (){
+
+
+};
 
 	
 }, 

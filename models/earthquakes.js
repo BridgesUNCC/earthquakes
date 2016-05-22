@@ -191,10 +191,10 @@ module.exports.getMinMagNumberEq = function (callback, limitNumber, limitMag){
     //eq.close();
 };
 
-module.exports.findExistingId = function (callback, currEq){
+module.exports.findExistingId = function (currEq, callback){
     console.log('Search for existing earthquake by > id...' + currEq.id);
+    //eq.find({"properties.time" : currEq.properties.time}, callback);
     eq.find({"id" : currEq.id}, callback);
-
 
      // function(err, results){
       //  if(err) {
