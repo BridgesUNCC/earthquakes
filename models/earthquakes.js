@@ -192,7 +192,7 @@ module.exports.getMinMagNumberEq = function (callback, limitNumber, limitMag){
 };
 
 module.exports.findExistingId = function (currEq, callback){
-    console.log('Search for existing earthquake by > id...' + currEq.id);
+    console.log('Searching for existing earthquake by > id...' + currEq.id);
     //eq.find({"properties.time" : currEq.properties.time}, callback);
     eq.find({"id" : currEq.id}, callback);
 };
@@ -204,8 +204,10 @@ module.exports.findExistingId = function (currEq, callback){
 module.exports.deleteExtra = function (max, callback){
     console.log('Adjusting size of databse to > max...' + max);
     //eq.find({"properties.time" : currEq.properties.time}, callback);
-    eq.find({"properties.mag": { $gt: 6 }}, callback)
-    sort('properties.time').forEach(function(currEq){
-      console.log(curr.Eq);
-    }, this);
+    eq.find({"properties.mag": { $lt: 6 }}, callback)
+    .sort('properties.time').limit(max);
+
+    //.forEach(function(currEq){
+     //console.log(curr.Eq);
+    //}, this);
 };

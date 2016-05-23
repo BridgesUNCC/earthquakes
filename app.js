@@ -48,7 +48,7 @@ PythonShell.run('my_script.py', options, function(err, results){
 //usgs app
 var app = express();
 var exists=1,
-	maxSize =13000;
+	deleteNumber =1;
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
@@ -223,21 +223,22 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 *
 */
 var job = new CronJob({
-	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
 request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
+//this adds 600 eqs //request.get('http://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=2016-04-23%2000:00:00&endtime=2016-05-23%2023:59:59&minmagnitude=1.5&orderby=time&limit=600',
+//this adds all from beginning of year avove 2.5 request.get('http://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=2016-01-01%2000:00:00&endtime=2016-05-23%2023:59:59&minmagnitude=4.5&eventtype=earthquake&orderby=time',
 		function(error, response, body){
 			
 			if (!error && response.statusCode == 200){
-				//console.log(JSON.parse(body).features);
-			//console.log("hello");
+			//console.log(JSON.parse(body).features);
 			};
 }).on('data',function(incommingEq){
-	str+=incommingEq								//concatenating new incomming eq
+	str+=incommingEq;								//concatenating new incomming eq
 	
-	if (str.length>1e6)								//if the string is too long the connection is interrupted
-				request.connection.destroy();
+	if (str.length>1e6)	;							//if the string is too long the connection is interrupted
+			request.connection.destroy();
 			//console.log(str);
 		
 }).on('end', function(){
@@ -251,10 +252,7 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 								throw err;
 						};
 						exists = found.length;
-						//console.log(exists);
-						//console.log(newEq[i]);
 						
-						//res.json(eqk);
 						console.log("Found "+ exists);
 						if (exists===0){
 							console.log(currEq);
@@ -262,36 +260,50 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 									if(err) throw err;
 										console.log('New eq data added...');
 							});
+							callback(); //adjusting database size by deleting the oldest
 						}
-						else
+						else{
 									console.log('No new data to add...');
+									
+							}
 						
 				});
 			 	
 			}, this); //this -- asynchronous
-		});
 
-var callback = function (){
-			    app.models.eq.deleteExtra(maxSize, function(err, found){
-					if(err){
+			//deleting the oldest and maintaining the size of the database
+			var callback = function (){
+			    app.models.eq.deleteExtra(deleteNumber, function(err, found){
+						if(err){
 								throw err;
 						};
-					console.log("Delete oldest " + found);	
+						//remove DOESN"T work yet ALL
+						//app.models.eq.remove(found, function(err){ //{"id" : found.id}
+						//			if(err){ 
+						//				throw err;
+						//			}
+						//			else
+						//				console.log("Delete oldest " + found.id);					
+						//});
+						//console.log("Delete oldest " + found);
+						//console.log(found);
 
-				});
+					});
+				};
+		});
 
-};
+
 
 	
 }, 
-function(){
+		function(){
 	//other tasks once the db update is complete
-},
-start: true, //start now 
-timeZone: ''//'America/Charlotte'
+		},
+		start: true, //start now 
+		timeZone: ''//'America/Charlotte'
 });
 
-job.start();
+	job.start();
 //.pipe(parser)
 //.pipe(eventStream.mapSync(function(data){
 //	console.error(data);
