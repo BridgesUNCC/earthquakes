@@ -226,7 +226,7 @@ var job = new CronJob({
 	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
-request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
+var client = request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
 //this adds 600 eqs //request.get('http://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=2016-04-23%2000:00:00&endtime=2016-05-23%2023:59:59&minmagnitude=1.5&orderby=time&limit=600',
 //this adds all from beginning of year avove 2.5 request.get('http://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=2016-01-01%2000:00:00&endtime=2016-05-23%2023:59:59&minmagnitude=4.5&eventtype=earthquake&orderby=time',
 		function(error, response, body){
@@ -237,8 +237,8 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 }).on('data',function(incommingEq){
 	str+=incommingEq;								//concatenating new incomming eq
 	
-	if (str.length>1e6)	;							//if the string is too long the connection is interrupted
-			request.connection.destroy();
+	if (str.length>1e6 && 'undefined' !== typeof x)	;							//if the string is too long the connection is interrupted
+			client.destroy();
 			//console.log(str);
 		
 }).on('end', function(){
