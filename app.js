@@ -47,7 +47,8 @@ PythonShell.run('my_script.py', options, function(err, results){
 
 //usgs app
 var app = express();
-var exists=1;
+var exists=1,
+	maxSize =13000;
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
@@ -222,7 +223,7 @@ request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojs
 *
 */
 var job = new CronJob({
-	cronTime: '*/1 * * * *',//'00 30 11 1-7', 
+	cronTime: '*/60 * * * *',//'00 30 11 1-7', 
 	onTick: function(){ //scheduling update every hour 
 var str ='';
 request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson',  //accessing the source of earthquakes
@@ -242,10 +243,8 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 }).on('end', function(){
 			 var newEq =  JSON.parse(str).features;
 			//console.log(newEq);
-			newEq.forEach(function(currEq){
-			//for (i=0; i<newEq.length; i++){	
+			newEq.forEach(function(currEq){    //search asynchronously 	
 				//console.log(app.models.eq.findExistingId(newEq[i].id));
-				//console.log(newEq[i].id);
 			    
 			    app.models.eq.findExistingId(currEq, function(err, found){
 						if(err){
@@ -263,19 +262,23 @@ request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.g
 									if(err) throw err;
 										console.log('New eq data added...');
 							});
-							//exists = 1;
 						}
 						else
 									console.log('No new data to add...');
-				//exists = 1;
 						
 				});
 			 	
-			}, this);
+			}, this); //this -- asynchronous
 		});
 
 var callback = function (){
+			    app.models.eq.deleteExtra(maxSize, function(err, found){
+					if(err){
+								throw err;
+						};
+					console.log("Delete oldest " + found);	
 
+				});
 
 };
 

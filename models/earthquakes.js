@@ -195,23 +195,17 @@ module.exports.findExistingId = function (currEq, callback){
     console.log('Search for existing earthquake by > id...' + currEq.id);
     //eq.find({"properties.time" : currEq.properties.time}, callback);
     eq.find({"id" : currEq.id}, callback);
+};
 
-     // function(err, results){
-      //  if(err) {
-     //       console.log("error while serching for id: " + id);
-     //       return false;
-     //   };
-     //   if (!results.length){
-            //console.log("Found "+ results.length + " existing results for id: " + id);
-      //      return true;
-      //    }
-      //  else
-      //      return false; 
-
-    //}
-
-    //);
-
-        
-    //eq.close();
+/*
+*  Adjusting size of the database by elliminating the older earthquakes
+* under the magnitude of 6.0
+*/
+module.exports.deleteExtra = function (max, callback){
+    console.log('Adjusting size of databse to > max...' + max);
+    //eq.find({"properties.time" : currEq.properties.time}, callback);
+    eq.find({"properties.mag": { $gt: 6 }}, callback)
+    sort('properties.time').forEach(function(currEq){
+      console.log(curr.Eq);
+    }, this);
 };
