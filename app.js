@@ -7,43 +7,6 @@ var _ = require ('lodash');
 var request = require('request');
 var CronJob = require('cron').CronJob; //updating database at certain intervals
 var PythonShell = require ('python-shell');
-/*
-var option = {
-  uri: 'https://www.googleapis.com/urlshortener/v1/url',
-  method: 'POST',
-  json: {
-    "longUrl": "http://www.google.com/"
-  }
-};
-
-request(option, function (error, response, body) {
-  console.log(error);
-  console.log(response.statusCode);
-  if (!error && response.statusCode == 200) {
-    console.log(body.id) // Print the shortened url.
-  }
-});
-
-*/
-
-/*
-Options for running the python scripts for Corgis
-*/
-/*
-var options={
-	mode: 'text',
-	pythonPath: '/usr/bin/python',  //path to python
-	pythonOptions: ['-u'],
-	scriptPath: 'corgis_scripts/', //path to scripts
-	args: ['value1', 'value2', 'value3']
-
-};
-*/
-/*
-PythonShell.run('my_script.py', options, function(err, results){
-	if (err) throw err;
-	console.log('results: %j', results); //results is an array of messages
-});*/
 
 //usgs app
 var app = express();
@@ -85,21 +48,6 @@ app.get('/eq/latest/:number', function(req, res){
 		}
 		
 		res.json({"Earthquakes":eqk});
-		//console.log(eqk);
-		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
-		/*This is great to have for the future if you want to put one model
-		as a field in another model*/
-		/*
-		console.log(eqk);
-
-		//res.json(eqk);
-	},  function(err, eqk){
-			console.log('second level');
-			mongoose.model('eqWpds').populate(eqk, {path: 'eq'}, function(err, eqk){
-				//console.log('third level:'eqk);
-				res.json({"Tweets":eqk});
-			});
-	})*/
 
 	}, req.params.number);
 });
@@ -138,8 +86,6 @@ app.get('/eq/latest/:number1/magnitude/:number2', function(req, res){
 		if(err){
 			throw err;
 		}
-		//console.log(eqk);
-		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
 		res.json(eqk);//client expects a field
 	}, req.params.number1, req.params.number2);
 });
@@ -159,19 +105,16 @@ app.get('/airline/:number', function(req, res){
 
 //get airline
 app.get('/airlineAll', function(req, res){
-	//console.log(req.params.number);
 	app.models.airlineAll.getNumberAirlines(function(err, air){
 		if(err){
 			throw err;
 		}
-		//console.log(eqk);
-		//eqk = (('{"Eqs":').concat(eqk)).concat('}');
 		res.json(air);
 	});
 });
 
 var port = process.env.PORT || 8080;        // set our port
-var env = process.env.NODE_ENV = process.env.NODE_ENV || 'production'; //getting the environment from node
+var env = process.env.NODE_ENV = process.env.NODE_ENV || 'production'; //getting the environment from node, change the production to anything to use the local database for testing
 
 
 //connect to MongoDB
@@ -206,17 +149,6 @@ dbClient.once('open', function callback(){
 }); 
 
 //middleware
-
-//var parser = require('JSONStream').parse('rows.*.doc');
-//var eventStream = require('event-stream');
-
-//var options = {db: 'mongodb://localhost:27017/test', collection: 'eqs'};
-//var options = {db: 'mongodb://bridges:bridges@ds017678.mlab.com:17678/usgs', collection: 'eqs'};
-/*var streamToMongo = require('stream-to-mongo')(options);
-request('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_hour.geojson')
-	.pipe(parser)
-	.pipe(streamToMongo);
-*/
 
 /*
 * Cronjob adding new earthquakes every hour
@@ -260,7 +192,7 @@ var client = request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summa
 									if(err) throw err;
 										console.log('New eq data added...');
 							});
-							callback(); //adjusting database size by deleting the oldest
+							deleteExtra(); //adjusting database size by deleting the oldest
 						}
 						else{
 									console.log('No new data to add...');
@@ -272,22 +204,20 @@ var client = request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summa
 			}, this); //this -- asynchronous
 
 			//deleting the oldest and maintaining the size of the database
-			var callback = function (){
+			var deleteExtra = function (){
 			    app.models.eq.deleteExtra(deleteNumber, function(err, found){
 						if(err){
 								throw err;
 						};
-						//remove DOESN"T work yet ALL
-						//app.models.eq.remove(found, function(err){ //{"id" : found.id}
-						//			if(err){ 
-						//				throw err;
-						//			}
-						//			else
-						//				console.log("Delete oldest " + found.id);					
-						//});
-						//console.log("Delete oldest " + found);
-						//console.log(found);
-
+						
+						app.models.eq.remove({"id" : found[0].id}, function(err){ //{"id" : found.id}
+									if(err){ 
+										throw err;
+									}
+									else
+										console.log("Delete oldest " + found[0].id);					
+						});
+						
 					});
 				};
 		});
@@ -303,12 +233,10 @@ var client = request.get('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summa
 		timeZone: ''//'America/Charlotte'
 });
 
-	job.start();
-//.pipe(parser)
-//.pipe(eventStream.mapSync(function(data){
-//	console.error(data);
-//	return data;
-//})));
+
+
+	job.start(); //starting the cron job
+
 
 /*
 *Cronjob keeping the server alive by sending a request every 10 minutes
